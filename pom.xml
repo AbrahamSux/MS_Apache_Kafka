@@ -8,9 +8,14 @@
 		<version>2.7.15</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
+	<organization>
+		<name>Abraham Juárez</name>
+		<url>https://www.aj-sux.com.mx/</url>
+	</organization>
 	<groupId>com.kafka.udemy</groupId>
 	<artifactId>MS_Apache_Kafka</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>MS_Apache_Kafka</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
