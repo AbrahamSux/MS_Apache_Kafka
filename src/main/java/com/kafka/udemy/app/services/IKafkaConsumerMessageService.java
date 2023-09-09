@@ -1,6 +1,6 @@
 package com.kafka.udemy.app.services;
 
-public interface IKafkaMessageService {
+public interface IKafkaConsumerMessageService {
 
 	/**
 	 * Para utilizar el listener y obtener los mensajes.
