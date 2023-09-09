@@ -39,10 +39,11 @@ public class KafkaConfiguration {
 	/**
 	 * Una vez definido el consumer factory se configura la fabrica de contenedores de escucha concurrente de Kafka.
 	 */
-	@Bean
+	@Bean(name = "kafkaListenerContainerFactory")
 	public ConcurrentKafkaListenerContainerFactory<Integer, String> kafkaListenerContainerFactory() {
 		ConcurrentKafkaListenerContainerFactory<Integer, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
 		factory.setConsumerFactory(consumerFactory());
+		factory.setBatchListener(true); //Leer más de un registro al mismo tiempo.
 
 		return factory;
 	}

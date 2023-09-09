@@ -1,26 +1,26 @@
-package com.kafka.udemy.app.models.mensajeconfirmacion;
+package com.kafka.udemy.app.models.mensajerechazo;
 
 import com.kafka.udemy.app.models.enums.CorresponsalesEnum;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 
-public class MensajeConfirmacionResponse implements Serializable {
+public class MensajeRechazoResponse implements Serializable {
 
 	private String idConsumidor;
 	private CorresponsalesEnum corresponsal;
 	private ZonedDateTime fechaEnvio;
-	private MensajeConfirmacionRequest mensajeConfirmacion;
+	private MensajeRechazoRequest mensajeRechazo;
 
 
 	// MÉTODOS
 
-	public MensajeConfirmacionResponse(String idConsumidor, CorresponsalesEnum corresponsal, ZonedDateTime fechaEnvio,
-									   MensajeConfirmacionRequest mensajeConfirmacion) {
+	public MensajeRechazoResponse(String idConsumidor, CorresponsalesEnum corresponsal, ZonedDateTime fechaEnvio,
+								  MensajeRechazoRequest mensajeRechazo) {
 		this.idConsumidor = idConsumidor;
 		this.corresponsal = corresponsal;
 		this.fechaEnvio = fechaEnvio;
-		this.mensajeConfirmacion = mensajeConfirmacion;
+		this.mensajeRechazo = mensajeRechazo;
 	}
 
 
@@ -50,12 +50,12 @@ public class MensajeConfirmacionResponse implements Serializable {
 		this.fechaEnvio = fechaEnvio;
 	}
 
-	public MensajeConfirmacionRequest getMensajeConfirmacion() {
-		return mensajeConfirmacion;
+	public MensajeRechazoRequest getMensajeRechazo() {
+		return mensajeRechazo;
 	}
 
-	public void setMensajeConfirmacion(MensajeConfirmacionRequest mensajeConfirmacion) {
-		this.mensajeConfirmacion = mensajeConfirmacion;
+	public void setMensajeRechazo(MensajeRechazoRequest mensajeRechazo) {
+		this.mensajeRechazo = mensajeRechazo;
 	}
 
 }

@@ -2,6 +2,8 @@ package com.kafka.udemy.app.controllers;
 
 import com.kafka.udemy.app.models.mensajeconfirmacion.MensajeConfirmacionRequest;
 import com.kafka.udemy.app.models.mensajeconfirmacion.MensajeConfirmacionResponse;
+import com.kafka.udemy.app.models.mensajerechazo.MensajeRechazoRequest;
+import com.kafka.udemy.app.models.mensajerechazo.MensajeRechazoResponse;
 import com.kafka.udemy.app.services.IKafkaProducerMessageService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -37,15 +39,22 @@ public class MessageController {
 			@RequestHeader HttpHeaders headers) {
 		LOGGER.info("Mensaje Confirmacion: {}", mensajeConfirmacion);
 
-		MensajeConfirmacionResponse response = iKafkaProducerMessageService.enviarMensaje(headers, mensajeConfirmacion);
-		return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
+		MensajeConfirmacionResponse response = iKafkaProducerMessageService.enviarMensajeConfirmacion(headers, mensajeConfirmacion);
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
-	@PostMapping("/rechazo")
-	@ResponseStatus(value = HttpStatus.OK)
-	public void enviarMensajeRechazo(@RequestBody MensajeConfirmacionRequest mensajeConfirmacion) {
+	@PostMapping(path = "/rechazo",
+			produces = MediaType.APPLICATION_JSON_VALUE,
+			consumes = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> enviarMensajeRechazo(
+			@Valid
+			@NotNull(message = MESSAGE_REQUIRED)
+			@RequestBody MensajeRechazoRequest mensajeRechazo,
+			@RequestHeader HttpHeaders headers) {
+		LOGGER.info("Mensaje Rechazo: {}", mensajeRechazo);
 
-		LOGGER.info("Mensaje Rechazo: {}", mensajeConfirmacion);
+		MensajeRechazoResponse response = iKafkaProducerMessageService.enviarMensajeRechazo(headers, mensajeRechazo);
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 
 }
