@@ -1,5 +1,8 @@
 package com.kafka.udemy.app.config;
 
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.prometheus.PrometheusConfig;
+import io.micrometer.prometheus.PrometheusMeterRegistry;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -8,11 +11,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@EnableScheduling
 public class KafkaConfiguration {
 
 	/**
@@ -22,6 +27,7 @@ public class KafkaConfiguration {
 	public KafkaTemplate<String, String> createTemplate() {
 		Map<String, Object> senderProps = producerProps();
 		ProducerFactory<String, String> producerFactory = new DefaultKafkaProducerFactory<>(senderProps);
+		producerFactory.addListener(new MicrometerProducerListener<String, String>(meterRegistry()));
 
 		return new KafkaTemplate<>(producerFactory);
 	}
@@ -45,6 +51,12 @@ public class KafkaConfiguration {
 		factory.setConcurrency(3); //Se tendrán 3 hilos consumiendo mensajes de forma concurrente.
 
 		return factory;
+	}
+
+	@Bean
+	public MeterRegistry meterRegistry() {
+		PrometheusMeterRegistry prometheusMeterRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+		return prometheusMeterRegistry;
 	}
 
 

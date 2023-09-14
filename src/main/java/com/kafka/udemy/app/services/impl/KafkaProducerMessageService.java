@@ -7,6 +7,8 @@ import com.kafka.udemy.app.models.mensajeconfirmacion.MensajeConfirmacionRespons
 import com.kafka.udemy.app.models.mensajerechazo.MensajeRechazoRequest;
 import com.kafka.udemy.app.models.mensajerechazo.MensajeRechazoResponse;
 import com.kafka.udemy.app.services.IKafkaProducerMessageService;
+import io.micrometer.core.instrument.Meter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +18,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -36,6 +40,9 @@ public class KafkaProducerMessageService implements IKafkaProducerMessageService
 	@Autowired
 	private KafkaListenerEndpointRegistry registry;
 
+	@Autowired
+	private MeterRegistry meterRegistry;
+
 	/**
 	 * Topics Kafka.
 	 */
@@ -48,6 +55,33 @@ public class KafkaProducerMessageService implements IKafkaProducerMessageService
 	@Value("${TZ}")
 	private String zoneId;
 
+
+	@Scheduled(fixedDelay = 15000, initialDelay = 3000)
+	public void consumirMensajes() {
+
+		LOGGER.info("Empezando a consumir mensajes . . .");
+		registry.getListenerContainer("autoStartup").start();
+		realizarTiempoMuerto(10000L);
+		registry.getListenerContainer("autoStartup").stop();
+		LOGGER.info("Termina el consumo de mensajes.");
+	}
+
+	/**
+	 * Mostrar métricas.
+	 */
+	//@Scheduled(fixedDelay = 10000, initialDelay = 5000)
+	public void messageCountMetric() {
+
+		List<Meter> meters = meterRegistry.getMeters();
+		LOGGER.info("Meters Size : {}", meters.size());
+
+		for (Meter meter : meters) {
+			LOGGER.info("Metric {} ", meter.getId());
+		}
+
+		//double count = meterRegistry.get("kafka.producer.record.send.total").functionCounter().count();
+		//LOGGER.info("Count {} ",count);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -64,12 +98,6 @@ public class KafkaProducerMessageService implements IKafkaProducerMessageService
 		kafkaTemplate.send(producerRecord);
 		realizarTiempoMuerto(1000L);
 
-
-		LOGGER.info("Empezando a consumir mensajes . . .");
-		registry.getListenerContainer("autoStartup").start();
-		realizarTiempoMuerto(5000L);
-		registry.getListenerContainer("autoStartup").stop();
-		LOGGER.info("Termina el consumo de mensajes.");
 
 		ZonedDateTime currentZoneDateTime = ZonedDateTime.now(Clock.system(ZoneId.of(zoneId)));
 		LOGGER.info("ZonedDateTime : {}", currentZoneDateTime);
