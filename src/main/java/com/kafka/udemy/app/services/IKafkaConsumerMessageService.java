@@ -1,5 +1,7 @@
 package com.kafka.udemy.app.services;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+
 import java.util.List;
 
 public interface IKafkaConsumerMessageService {
@@ -18,6 +20,6 @@ public interface IKafkaConsumerMessageService {
 	 * @param messages Los mensajes obtenidos.
 	 */
 	@SuppressWarnings("unused")
-	void obtenerMensaje(List<String> messages);
+	void obtenerMensaje(List<ConsumerRecord<String, Object>> messages);
 
 }

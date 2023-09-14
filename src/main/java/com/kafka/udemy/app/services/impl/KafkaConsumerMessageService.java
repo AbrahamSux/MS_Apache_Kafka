@@ -1,6 +1,7 @@
 package com.kafka.udemy.app.services.impl;
 
 import com.kafka.udemy.app.services.IKafkaConsumerMessageService;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -32,6 +33,7 @@ public class KafkaConsumerMessageService implements IKafkaConsumerMessageService
 	 */
 	@Override
 	@KafkaListener(
+			id ="autoStartup", autoStartup ="false", //No iniciará por defecto cuando inicie nuestra aplicación.
 			topics = {"dev-topic", "confirmacion-topic", "rechazo-topic"},
 			containerFactory = "kafkaListenerContainerFactory",
 			groupId = "consumer",
@@ -39,10 +41,11 @@ public class KafkaConsumerMessageService implements IKafkaConsumerMessageService
 					"max.poll.interval.ms:400",
 					"max.poll.records:5"
 	})
-	public void obtenerMensaje(List<String> messages) {
+	public void obtenerMensaje(List<ConsumerRecord<String, Object>> messages) {
+		LOGGER.info("Start reading messages");
 
-		for (String message: messages) {
-			LOGGER.info("Received Message : {}", message);
+		for (ConsumerRecord<String, Object> message: messages) {
+			LOGGER.info("Received Message => Offset= {} Partition= {} Key= {} Value= {}", message.offset(), message.partition(), message.key(), message.value());
 		}
 		LOGGER.info("Batch complete.");
 	}

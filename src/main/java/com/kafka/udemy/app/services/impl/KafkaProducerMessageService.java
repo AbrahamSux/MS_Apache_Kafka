@@ -7,17 +7,20 @@ import com.kafka.udemy.app.models.mensajeconfirmacion.MensajeConfirmacionRespons
 import com.kafka.udemy.app.models.mensajerechazo.MensajeRechazoRequest;
 import com.kafka.udemy.app.models.mensajerechazo.MensajeRechazoResponse;
 import com.kafka.udemy.app.services.IKafkaProducerMessageService;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @SuppressWarnings("DuplicatedCode")
@@ -29,6 +32,9 @@ public class KafkaProducerMessageService implements IKafkaProducerMessageService
 
 	@Autowired
 	private KafkaTemplate<String, String> kafkaTemplate;
+
+	@Autowired
+	private KafkaListenerEndpointRegistry registry;
 
 	/**
 	 * Topics Kafka.
@@ -54,15 +60,19 @@ public class KafkaProducerMessageService implements IKafkaProducerMessageService
 		String corresponsal = Objects.requireNonNull(headers.get("corresponsal")).get(0);
 
 		LOGGER.info("Enviando mensaje a kafka: {}", message);
-		kafkaTemplate.send(TOPIC_CONFIRMACION, message);
+		ProducerRecord<String, String> producerRecord = new ProducerRecord<>(TOPIC_CONFIRMACION, UUID.randomUUID().toString(), message);
+		kafkaTemplate.send(producerRecord);
+		realizarTiempoMuerto(1000L);
 
-		LocalDateTime currentLocalDateTime = LocalDateTime.now(Clock.system(ZoneId.of(zoneId)));
+
+		LOGGER.info("Empezando a consumir mensajes . . .");
+		registry.getListenerContainer("autoStartup").start();
+		realizarTiempoMuerto(5000L);
+		registry.getListenerContainer("autoStartup").stop();
+		LOGGER.info("Termina el consumo de mensajes.");
+
 		ZonedDateTime currentZoneDateTime = ZonedDateTime.now(Clock.system(ZoneId.of(zoneId)));
-		OffsetDateTime currentOffsetDateTime = OffsetDateTime.now( Clock.system(ZoneId.of(zoneId)));
-
-		LOGGER.info("LocalDateTime : " + currentLocalDateTime);
-		LOGGER.info("ZonedDateTime : " + currentZoneDateTime);
-		LOGGER.info("OffsetDateTime : " + currentOffsetDateTime);
+		LOGGER.info("ZonedDateTime : {}", currentZoneDateTime);
 
 		return new MensajeConfirmacionResponse(
 				idConsumidor,
@@ -85,13 +95,14 @@ public class KafkaProducerMessageService implements IKafkaProducerMessageService
 		ZonedDateTime currentZoneDateTime = ZonedDateTime.now(Clock.system(ZoneId.of(zoneId)));
 
 		LOGGER.info("Enviando mensaje a kafka: {}", message);
-		CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(TOPIC_RECHAZO, message);
+		ProducerRecord<String, String> producerRecord = new ProducerRecord<>(TOPIC_RECHAZO, message);
+		CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(producerRecord);
 
 		future.whenComplete((result, ex) -> {
 			if (ex == null) {
-				LOGGER.info("Mensaje enviado [" + message + "] con offset: [" + result.getRecordMetadata().offset() + "].");
+				LOGGER.info("Mensaje enviado [{}] con offset: [{}].", message, result.getRecordMetadata().offset());
 			} else {
-				LOGGER.error("No se puede enviar el mensaje [" + message + "] debido a : " + ex.getMessage());
+				LOGGER.error("No se puede enviar el mensaje [{}] debido a : {}", message, ex.getMessage());
 			}
 		});
 
@@ -101,6 +112,25 @@ public class KafkaProducerMessageService implements IKafkaProducerMessageService
 				currentZoneDateTime,
 				mensajeRechazo
 		);
+	}
+
+
+	// MÉTODOS PRIVADOS
+
+	/**
+	 * Método auxiliar utilizado para realizar un tiempo muerto.
+	 *
+	 * @param milliseconds El tiempo muerto a realizar en mili-segundos.
+	 */
+	private void realizarTiempoMuerto(Long milliseconds) {
+
+		try {
+			Thread.sleep(milliseconds);
+		} catch (InterruptedException ie) {
+			LOGGER.error("Error al realizar el tiempo muerto. ", ie);
+			// Restaurar estado interrumpido...
+			Thread.currentThread().interrupt();
+		}
 	}
 
 }
