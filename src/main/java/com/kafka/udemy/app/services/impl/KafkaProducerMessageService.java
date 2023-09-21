@@ -94,7 +94,7 @@ public class KafkaProducerMessageService implements IKafkaProducerMessageService
 		String corresponsal = Objects.requireNonNull(headers.get("corresponsal")).get(0);
 
 		LOGGER.info("Enviando mensaje a kafka: {}", message);
-		ProducerRecord<String, String> producerRecord = new ProducerRecord<>(TOPIC_CONFIRMACION, UUID.randomUUID().toString(), message);
+		ProducerRecord<String, String> producerRecord = new ProducerRecord<>(TOPIC_CONFIRMACION, "mensajes-confirmacion", message);
 		kafkaTemplate.send(producerRecord);
 		realizarTiempoMuerto(1000L);
 
@@ -123,7 +123,7 @@ public class KafkaProducerMessageService implements IKafkaProducerMessageService
 		ZonedDateTime currentZoneDateTime = ZonedDateTime.now(Clock.system(ZoneId.of(zoneId)));
 
 		LOGGER.info("Enviando mensaje a kafka: {}", message);
-		ProducerRecord<String, String> producerRecord = new ProducerRecord<>(TOPIC_RECHAZO, message);
+		ProducerRecord<String, String> producerRecord = new ProducerRecord<>(TOPIC_RECHAZO, "mensajes-rechazo", message);
 		CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(producerRecord);
 
 		future.whenComplete((result, ex) -> {

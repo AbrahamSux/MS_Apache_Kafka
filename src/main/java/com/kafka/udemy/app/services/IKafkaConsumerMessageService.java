@@ -20,6 +20,6 @@ public interface IKafkaConsumerMessageService {
 	 * @param messages Los mensajes obtenidos.
 	 */
 	@SuppressWarnings("unused")
-	void obtenerMensaje(List<ConsumerRecord<String, Object>> messages);
+	void obtenerMensaje(List<ConsumerRecord<String, String>> messages);
 
 }
