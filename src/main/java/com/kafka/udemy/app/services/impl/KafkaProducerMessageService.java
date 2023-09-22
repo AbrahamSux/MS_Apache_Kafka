@@ -60,9 +60,9 @@ public class KafkaProducerMessageService implements IKafkaProducerMessageService
 	public void consumirMensajes() {
 
 		LOGGER.info("Empezando a consumir mensajes . . .");
-		registry.getListenerContainer("autoStartup").start();
+		/*registry.getListenerContainer("autoStartup").start();
 		realizarTiempoMuerto(10000L);
-		registry.getListenerContainer("autoStartup").stop();
+		registry.getListenerContainer("autoStartup").stop();*/
 		LOGGER.info("Termina el consumo de mensajes.");
 	}
 
