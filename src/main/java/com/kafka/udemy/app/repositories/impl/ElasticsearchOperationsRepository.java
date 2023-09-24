@@ -1,9 +1,9 @@
-package com.kafka.udemy.app.repositorys.impl;
+package com.kafka.udemy.app.repositories.impl;
 
 import com.google.gson.Gson;
 import com.kafka.udemy.app.models.elk.MensajeConfirmacion;
 import com.kafka.udemy.app.models.mensajeconfirmacion.MensajeConfirmacionRequest;
-import com.kafka.udemy.app.repositorys.IElasticsearchOperationsRepository;
+import com.kafka.udemy.app.repositories.IElasticsearchOperationsRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +33,9 @@ public class ElasticsearchOperationsRepository implements IElasticsearchOperatio
 	@Value("${TZ}")
 	private String zoneId;
 
+
+
+	// MÉTODOS PÚBLICOS
 
 	@Override
 	public void guardarMensajeConfirmacion(String mensaje) {

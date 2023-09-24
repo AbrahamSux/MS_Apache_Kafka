@@ -1,4 +1,4 @@
-package com.kafka.udemy.app.repositorys;
+package com.kafka.udemy.app.repositories;
 
 public interface IElasticsearchOperationsRepository {
 

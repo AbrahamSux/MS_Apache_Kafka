@@ -1,5 +1,6 @@
 package com.kafka.udemy.app.controllers;
 
+import com.kafka.udemy.app.exceptions.ConfirmacionException;
 import com.kafka.udemy.app.models.mensajeconfirmacion.MensajeConfirmacionRequest;
 import com.kafka.udemy.app.models.mensajeconfirmacion.MensajeConfirmacionResponse;
 import com.kafka.udemy.app.models.mensajerechazo.MensajeRechazoRequest;
@@ -36,7 +37,7 @@ public class MessageController {
 			@Valid
 			@NotNull(message = MESSAGE_REQUIRED)
 			@RequestBody MensajeConfirmacionRequest mensajeConfirmacion,
-			@RequestHeader HttpHeaders headers) {
+			@RequestHeader HttpHeaders headers) throws ConfirmacionException {
 		LOGGER.info("Mensaje Confirmacion: {}", mensajeConfirmacion);
 
 		MensajeConfirmacionResponse response = iKafkaProducerMessageService.enviarMensajeConfirmacion(headers, mensajeConfirmacion);

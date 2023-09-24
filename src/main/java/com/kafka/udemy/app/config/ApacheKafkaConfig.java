@@ -16,9 +16,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.kafka.udemy.app.constants.ConstantsKafka.*;
+
 @Configuration
 @EnableScheduling
-public class KafkaConfiguration {
+public class ApacheKafkaConfig {
 
 	/**
 	 * Configuración de la fábrica de productores.

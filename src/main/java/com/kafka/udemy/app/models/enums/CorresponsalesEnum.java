@@ -1,10 +1,14 @@
 package com.kafka.udemy.app.models.enums;
 
+/**
+ * Enumeración con las diferentes corresponsalías.
+ */
 public enum CorresponsalesEnum {
 
 	OXXO,
 	SPEI,
-	OPENPAY;
+	OPENPAY,
+	SEVENELEVEN;
 
 
 	// MÉTODOS

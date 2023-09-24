@@ -13,17 +13,10 @@ import org.elasticsearch.client.RestClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import static com.kafka.udemy.app.constants.ConstantsElasticSearch.*;
+
 @Configuration
 public class ElasticSearchConfig {
-
-	private static final String HOSTNAME = "localhost";
-	private static final int PORT = 9200;
-	private static final String SCHEME = "http";
-
-	// BASIC AUTH
-	private static final String USERNAME = "elastic";
-	private static final String PASSWORD = "AsFgafYUZkVQYv_tj09E";
-
 
 	@Bean
 	public ElasticsearchClient createClient() {

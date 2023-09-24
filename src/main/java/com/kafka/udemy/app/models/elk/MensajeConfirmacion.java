@@ -9,6 +9,7 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.time.ZonedDateTime;
 
+@SuppressWarnings("unused")
 @TypeAlias("IndexConfirmationMessages")
 @Document(indexName = "mensajes-confirmacion")
 public class MensajeConfirmacion {
