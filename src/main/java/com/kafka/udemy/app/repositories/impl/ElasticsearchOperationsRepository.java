@@ -2,7 +2,7 @@ package com.kafka.udemy.app.repositories.impl;
 
 import com.google.gson.Gson;
 import com.kafka.udemy.app.models.elk.MensajeConfirmacion;
-import com.kafka.udemy.app.models.mensajeconfirmacion.MensajeConfirmacionRequest;
+import com.kafka.udemy.app.models.mensajeconfirmacion.MensajeConfirmacionResponse;
 import com.kafka.udemy.app.repositories.IElasticsearchOperationsRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,20 +40,13 @@ public class ElasticsearchOperationsRepository implements IElasticsearchOperatio
 	@Override
 	public void guardarMensajeConfirmacion(String mensaje) {
 
-		MensajeConfirmacionRequest mensajeConfirmacion = new Gson().fromJson(mensaje, MensajeConfirmacionRequest.class);
-		LOGGER.info("MENSAJE DE CONFIRMACION : {}", mensajeConfirmacion);
-
-
-		ZonedDateTime currentZoneDateTime = ZonedDateTime.now(Clock.system(ZoneId.of(zoneId)));
 		try {
-			MensajeConfirmacion savedEntity =  elasticsearchOperations.save(new MensajeConfirmacion(
-					generarIdSeguro(),
-					mensajeConfirmacion.getCliente(),
-					mensajeConfirmacion.getMensaje(),
-					mensajeConfirmacion.getPlataformaOrigen(),
-					mensajeConfirmacion.getPlataformaDestino(),
-					currentZoneDateTime
-			));
+			MensajeConfirmacionResponse mensajeConfirmacion = new Gson().fromJson(mensaje, MensajeConfirmacionResponse.class);
+			LOGGER.info("MENSAJE DE CONFIRMACION : {}", mensajeConfirmacion);
+
+			MensajeConfirmacion savedEntity =  elasticsearchOperations.save(
+					buildMensajeConfirmacion(mensajeConfirmacion)
+			);
 
 			LOGGER.info("MENSAJE GUARDADO: {}", savedEntity.getId());
 		} catch (Exception exception) {
@@ -104,4 +97,24 @@ public class ElasticsearchOperationsRepository implements IElasticsearchOperatio
 
 		return referencia.concat(randInRange.toString());
 	}
+
+	private MensajeConfirmacion buildMensajeConfirmacion(MensajeConfirmacionResponse mensajeConfirmacionResponse) {
+		ZonedDateTime currentZoneDateTime = ZonedDateTime.now(Clock.system(ZoneId.of(zoneId)));
+
+		return new MensajeConfirmacion(
+				generarIdSeguro(),
+				mensajeConfirmacionResponse.getIdConsumidor(),
+				mensajeConfirmacionResponse.getCorresponsal().name(),
+				mensajeConfirmacionResponse.getMensajeConfirmacion().getCliente(),
+				mensajeConfirmacionResponse.getMensajeConfirmacion().getMensaje(),
+				mensajeConfirmacionResponse.getMensajeConfirmacion().getPlataformaOrigen(),
+				mensajeConfirmacionResponse.getMensajeConfirmacion().getPlataformaDestino(),
+				mensajeConfirmacionResponse.getMensajeConfirmacion().getCorreoElectronico(),
+				mensajeConfirmacionResponse.getMensajeConfirmacion().getNumeroTelefono(),
+				mensajeConfirmacionResponse.getMensajeConfirmacion().getNotificacion().name(),
+				mensajeConfirmacionResponse.getMensajeConfirmacion().getTipoDeNotificacion().name(),
+				currentZoneDateTime
+		);
+	}
+
 }

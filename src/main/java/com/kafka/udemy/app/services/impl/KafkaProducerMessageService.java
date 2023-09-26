@@ -27,6 +27,9 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static com.kafka.udemy.app.constants.ConstantsKafka.TOPIC_CONFIRMACION;
 import static com.kafka.udemy.app.constants.ConstantsKafka.TOPIC_RECHAZO;
@@ -138,7 +141,7 @@ public class KafkaProducerMessageService implements IKafkaProducerMessageService
 		// MENSAJE DE CONFIRMACIÓN
 		if (messageRequest instanceof MensajeConfirmacionRequest) {
 			MensajeConfirmacionRequest mensajeConfirmacion = (MensajeConfirmacionRequest) messageRequest;
-			mensajeConfirmacion.getNotificacion().setTipoDeNotificacion(tipo);
+			mensajeConfirmacion.setTipoDeNotificacion(tipo);
 
 			return new MensajeConfirmacionResponse(
 					idConsumidor,
@@ -150,7 +153,7 @@ public class KafkaProducerMessageService implements IKafkaProducerMessageService
 		// MENSAJE DE RECHAZO
 		else {
 			MensajeRechazoRequest mensajeRechazo = (MensajeRechazoRequest) messageRequest;
-			mensajeRechazo.getNotificacion().setTipoDeNotificacion(tipo);
+			mensajeRechazo.setTipoDeNotificacion(tipo);
 
 			return new MensajeRechazoResponse(
 					idConsumidor,

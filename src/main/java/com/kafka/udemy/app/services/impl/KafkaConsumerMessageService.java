@@ -39,8 +39,28 @@ public class KafkaConsumerMessageService implements IKafkaConsumerMessageService
 	 */
 	@Override
 	@KafkaListener(
+			topics = {"confirmacion-topic"},
+			containerFactory = "kafkaListenerContainerFactory",
+			groupId = "consumer"
+	)
+	public void obtenerMensajeConfirmacion(List<ConsumerRecord<String, String>> messages) {
+		LOGGER.info(">> obtenerMensajeConfirmacion( ... )");
+
+		for (ConsumerRecord<String, String> message: messages) {
+			LOGGER.info("Confirmation message received => Offset= {} Partition= {} Key= {} Value= {}", message.offset(), message.partition(), message.key(), message.value());
+
+			elasticsearchOperationsService.guardarMensajeConfirmacion(message.value());
+		}
+		LOGGER.info("Batch complete.");
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@KafkaListener(
 			id ="autoStartup", autoStartup ="true",
-			topics = {"dev-topic", "confirmacion-topic", "rechazo-topic"},
+			topics = {"dev-topic", "rechazo-topic"},
 			containerFactory = "kafkaListenerContainerFactory",
 			groupId = "consumer",
 			properties = {

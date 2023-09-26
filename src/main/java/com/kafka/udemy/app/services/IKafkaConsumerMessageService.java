@@ -15,6 +15,13 @@ public interface IKafkaConsumerMessageService {
 	void obtenerMensaje(String message);
 
 	/**
+	 * Utilizado para obtener los mensajes de confirmación de la cola de mensajes.
+	 *
+	 * @param messages Los mensajes obtenidos.
+	 */
+	void obtenerMensajeConfirmacion(List<ConsumerRecord<String, String>> messages);
+
+	/**
 	 * Para utilizar el listener y obtener los mensajes por lotes.
 	 * <br>
 	 * <br> - max.poll.interval.ms: = Define el tiempo entre una ejecución y otra (para el método pool).
