@@ -19,7 +19,7 @@ public class ConfirmacionException extends BaseException {
 
 
 	/**
-	 * Constructor.
+	 * Constructor para la respuesta de error en la aplicación referente al proceso de Mensajes de Confirmación.
 	 */
 	public ConfirmacionException(String codigoError, String descripcionError, String tipoError, String severidad, HttpStatus status) {
 		super(codigoError, descripcionError, tipoError, severidad, status);

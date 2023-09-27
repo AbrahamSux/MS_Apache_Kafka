@@ -1,8 +1,8 @@
 package com.kafka.udemy.app.services.impl;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonIOException;
 import com.kafka.udemy.app.exceptions.ConfirmacionException;
+import com.kafka.udemy.app.exceptions.RechazoException;
 import com.kafka.udemy.app.models.enums.CorresponsalesEnum;
 import com.kafka.udemy.app.models.enums.Notificacion;
 import com.kafka.udemy.app.models.mensajeconfirmacion.MensajeConfirmacionRequest;
@@ -27,14 +27,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-import static com.kafka.udemy.app.constants.ConstantsKafka.TOPIC_CONFIRMACION;
-import static com.kafka.udemy.app.constants.ConstantsKafka.TOPIC_RECHAZO;
-import static com.kafka.udemy.app.constants.ConstantsKafka.MSJ_CONFIRMACION_KEY;
-import static com.kafka.udemy.app.constants.ConstantsKafka.MSJ_RECHAZO_KEY;
+import static com.kafka.udemy.app.constants.ConstantsKafka.*;
 
 @Service
 public class KafkaProducerMessageService implements IKafkaProducerMessageService {
@@ -89,7 +83,7 @@ public class KafkaProducerMessageService implements IKafkaProducerMessageService
 	 * {@inheritDoc}
 	 */
 	@Override
-	public MensajeRechazoResponse enviarMensajeRechazo(HttpHeaders headers, MensajeRechazoRequest mensajeRechazo) {
+	public MensajeRechazoResponse enviarMensajeRechazo(HttpHeaders headers, MensajeRechazoRequest mensajeRechazo) throws RechazoException {
 
 		MensajeRechazoResponse rechazoResponse = (MensajeRechazoResponse) buildMessageResponse(headers, mensajeRechazo);
 		String message = new Gson().toJson(rechazoResponse);
@@ -108,9 +102,9 @@ public class KafkaProducerMessageService implements IKafkaProducerMessageService
 				}
 			});
 
-		} catch (Exception e) {
-			LOGGER.error("Ocurrio un error al momento de enviar el mensaje de Rechazo. ", e);
-
+		} catch (KafkaException ke) {
+			LOGGER.error("Ocurrio un error al momento de enviar el mensaje de Rechazo. ", ke);
+			throw RechazoException.ERR_ENVIO_MENSAJE_RECHAZO_KAFKA;
 		}
 
 		return rechazoResponse;
@@ -133,15 +127,14 @@ public class KafkaProducerMessageService implements IKafkaProducerMessageService
 		String corresponsal = Objects.requireNonNull(headers.get("corresponsal")).get(0);
 		String tipoDeNotificacion = Objects.requireNonNull(headers.get("tipoDeNotificacion")).get(0);
 
-		LocalDateTime currentLocalDateTime = LocalDateTime.now(Clock.system(ZoneId.of(zoneId)));
-		ZonedDateTime currentZoneDateTime = ZonedDateTime.now(Clock.system(ZoneId.of(zoneId)));
-
 		Notificacion.TipoDeNotificacion tipo = Notificacion.getTipoDeNotificacion(tipoDeNotificacion);
 
 		// MENSAJE DE CONFIRMACIÓN
 		if (messageRequest instanceof MensajeConfirmacionRequest) {
 			MensajeConfirmacionRequest mensajeConfirmacion = (MensajeConfirmacionRequest) messageRequest;
 			mensajeConfirmacion.setTipoDeNotificacion(tipo);
+
+			ZonedDateTime currentZoneDateTime = ZonedDateTime.now(Clock.system(ZoneId.of(zoneId)));
 
 			return new MensajeConfirmacionResponse(
 					idConsumidor,
@@ -154,6 +147,8 @@ public class KafkaProducerMessageService implements IKafkaProducerMessageService
 		else {
 			MensajeRechazoRequest mensajeRechazo = (MensajeRechazoRequest) messageRequest;
 			mensajeRechazo.setTipoDeNotificacion(tipo);
+
+			LocalDateTime currentLocalDateTime = LocalDateTime.now(Clock.system(ZoneId.of(zoneId)));
 
 			return new MensajeRechazoResponse(
 					idConsumidor,

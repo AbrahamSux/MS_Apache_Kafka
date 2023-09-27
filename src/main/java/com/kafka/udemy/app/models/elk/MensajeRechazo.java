@@ -7,19 +7,19 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 
 /** @noinspection unused*/
-@TypeAlias("IndexConfirmationMessages")
-@Document(indexName = "mensajes-confirmacion")
-public class MensajeConfirmacion {
+@TypeAlias("IndexRejectionMessages")
+@Document(indexName = "mensajes-rechazo")
+public class MensajeRechazo {
 
 	@Id
 	private String id;
 	private String idConsumidor;
 	private String corresponsal;
 	private Long cliente;
-	private String mensaje;
+	private String motivo;
 	private String plataformaOrigen;
 	private String plataformaDestino;
 	private String correoElectronico;
@@ -27,20 +27,20 @@ public class MensajeConfirmacion {
 	private String notificacion;
 	private String tipoDeNotificacion;
 
-	@Field(type = FieldType.Date, format = DateFormat.date_time)
-	private ZonedDateTime fechaCreacion;
+	@Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second_millis)
+	private LocalDateTime fechaCreacion;
 
 
 	// MÉTODOS
 
-	public MensajeConfirmacion(String id, String idConsumidor, String corresponsal, Long cliente, String mensaje,
-							   String plataformaOrigen, String plataformaDestino, String correoElectronico,
-							   String numeroTelefono, String notificacion, String tipoDeNotificacion, ZonedDateTime fechaCreacion) {
+	public MensajeRechazo(String id, String idConsumidor, String corresponsal, Long cliente, String motivo,
+						  String plataformaOrigen, String plataformaDestino, String correoElectronico, String numeroTelefono,
+						  String notificacion, String tipoDeNotificacion, LocalDateTime fechaCreacion) {
 		this.id = id;
 		this.idConsumidor = idConsumidor;
 		this.corresponsal = corresponsal;
 		this.cliente = cliente;
-		this.mensaje = mensaje;
+		this.motivo = motivo;
 		this.plataformaOrigen = plataformaOrigen;
 		this.plataformaDestino = plataformaDestino;
 		this.correoElectronico = correoElectronico;
@@ -85,12 +85,12 @@ public class MensajeConfirmacion {
 		this.cliente = cliente;
 	}
 
-	public String getMensaje() {
-		return mensaje;
+	public String getMotivo() {
+		return motivo;
 	}
 
-	public void setMensaje(String mensaje) {
-		this.mensaje = mensaje;
+	public void setMotivo(String motivo) {
+		this.motivo = motivo;
 	}
 
 	public String getPlataformaOrigen() {
@@ -141,11 +141,11 @@ public class MensajeConfirmacion {
 		this.tipoDeNotificacion = tipoDeNotificacion;
 	}
 
-	public ZonedDateTime getFechaCreacion() {
+	public LocalDateTime getFechaCreacion() {
 		return fechaCreacion;
 	}
 
-	public void setFechaCreacion(ZonedDateTime fechaCreacion) {
+	public void setFechaCreacion(LocalDateTime fechaCreacion) {
 		this.fechaCreacion = fechaCreacion;
 	}
 

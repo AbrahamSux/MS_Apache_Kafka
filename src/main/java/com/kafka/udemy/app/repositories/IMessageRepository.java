@@ -1,6 +1,6 @@
 package com.kafka.udemy.app.repositories;
 
-public interface IElasticsearchOperationsRepository {
+public interface IMessageRepository {
 
 	void guardarMensajeConfirmacion(String mensaje);
 

@@ -1,6 +1,7 @@
 package com.kafka.udemy.app.services;
 
 import com.kafka.udemy.app.exceptions.ConfirmacionException;
+import com.kafka.udemy.app.exceptions.RechazoException;
 import com.kafka.udemy.app.models.mensajeconfirmacion.MensajeConfirmacionRequest;
 import com.kafka.udemy.app.models.mensajeconfirmacion.MensajeConfirmacionResponse;
 import com.kafka.udemy.app.models.mensajerechazo.MensajeRechazoRequest;
@@ -25,7 +26,8 @@ public interface IKafkaProducerMessageService {
 	 * @param headers Los encabezados de la solicitud.
 	 * @param mensajeRechazo El mensaje de rechazo a enviar.
 	 * @return La respuesta a la solicitud.
+	 * @throws RechazoException Si ocurre algún error al momento de realizar el envío del mensaje.
 	 */
-	MensajeRechazoResponse enviarMensajeRechazo(HttpHeaders headers, MensajeRechazoRequest mensajeRechazo);
+	MensajeRechazoResponse enviarMensajeRechazo(HttpHeaders headers, MensajeRechazoRequest mensajeRechazo) throws RechazoException;
 
 }

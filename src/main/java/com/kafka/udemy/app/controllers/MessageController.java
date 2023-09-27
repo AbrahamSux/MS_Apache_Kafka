@@ -1,6 +1,7 @@
 package com.kafka.udemy.app.controllers;
 
 import com.kafka.udemy.app.exceptions.ConfirmacionException;
+import com.kafka.udemy.app.exceptions.RechazoException;
 import com.kafka.udemy.app.models.mensajeconfirmacion.MensajeConfirmacionRequest;
 import com.kafka.udemy.app.models.mensajeconfirmacion.MensajeConfirmacionResponse;
 import com.kafka.udemy.app.models.mensajerechazo.MensajeRechazoRequest;
@@ -10,7 +11,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,9 +26,20 @@ public class MessageController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MessageController.class);
 
 
-	@Autowired
-	private IKafkaProducerMessageService iKafkaProducerMessageService;
+	private final IKafkaProducerMessageService iKafkaProducerMessageService;
 
+
+	// CONSTRUCTOR
+
+	/**
+	 * Inyección por constructor del bean {@link IKafkaProducerMessageService}.
+	 */
+	public MessageController(final IKafkaProducerMessageService iKafkaProducerMessageService) {
+		this.iKafkaProducerMessageService = iKafkaProducerMessageService;
+	}
+
+
+	// SERVICIOS DISPONIBLES DEL API.
 
 	@PostMapping(path = "/confirmacion",
 			produces = MediaType.APPLICATION_JSON_VALUE,
@@ -51,7 +62,7 @@ public class MessageController {
 			@Valid
 			@NotNull(message = MESSAGE_REQUIRED)
 			@RequestBody MensajeRechazoRequest mensajeRechazo,
-			@RequestHeader HttpHeaders headers) {
+			@RequestHeader HttpHeaders headers) throws RechazoException {
 		LOGGER.info("Mensaje Rechazo: {}", mensajeRechazo);
 
 		MensajeRechazoResponse response = iKafkaProducerMessageService.enviarMensajeRechazo(headers, mensajeRechazo);

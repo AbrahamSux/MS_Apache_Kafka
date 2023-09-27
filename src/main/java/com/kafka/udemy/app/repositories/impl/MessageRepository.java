@@ -2,8 +2,11 @@ package com.kafka.udemy.app.repositories.impl;
 
 import com.google.gson.Gson;
 import com.kafka.udemy.app.models.elk.MensajeConfirmacion;
+import com.kafka.udemy.app.models.elk.MensajeRechazo;
 import com.kafka.udemy.app.models.mensajeconfirmacion.MensajeConfirmacionResponse;
-import com.kafka.udemy.app.repositories.IElasticsearchOperationsRepository;
+import com.kafka.udemy.app.models.mensajerechazo.MensajeRechazoResponse;
+import com.kafka.udemy.app.repositories.IMessageRepository;
+import com.kafka.udemy.app.repositories.RejectionMessageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,17 +18,22 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.time.Clock;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
-public class ElasticsearchOperationsRepository implements IElasticsearchOperationsRepository {
+public class MessageRepository implements IMessageRepository {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchOperationsRepository.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(MessageRepository.class);
 
 	@Autowired
 	private ElasticsearchOperations elasticsearchOperations;
+
+	@Autowired
+	RejectionMessageRepository rejectionMessageRepository;
+
 
 	/**
 	 * Zona horaria
@@ -44,20 +52,31 @@ public class ElasticsearchOperationsRepository implements IElasticsearchOperatio
 			MensajeConfirmacionResponse mensajeConfirmacion = new Gson().fromJson(mensaje, MensajeConfirmacionResponse.class);
 			LOGGER.info("MENSAJE DE CONFIRMACION : {}", mensajeConfirmacion);
 
-			MensajeConfirmacion savedEntity =  elasticsearchOperations.save(
+			MensajeConfirmacion savedConfirmationMessage =  elasticsearchOperations.save(
 					buildMensajeConfirmacion(mensajeConfirmacion)
 			);
 
-			LOGGER.info("MENSAJE GUARDADO: {}", savedEntity.getId());
+			LOGGER.info("SAVED CONFIRMATION MESSAGE: {}", savedConfirmationMessage.getId());
 		} catch (Exception exception) {
-			LOGGER.error("Ocurrio un error inesperado en el proceso para guardar en el indice de ELK. ", exception);
+			LOGGER.error("Se produjo un error inesperado al guardar el mensaje de Confirmacion en el indice de ELK. ", exception);
 		}
 	}
 
 	@Override
 	public void guardarMensajeRechazo(String mensaje) {
 
-		//return null;
+		try {
+			MensajeRechazoResponse mensajeRechazo = new Gson().fromJson(mensaje, MensajeRechazoResponse.class);
+			LOGGER.info("MENSAJE DE RECHAZO : {}", mensajeRechazo);
+
+			MensajeRechazo savedRejectionMessage = rejectionMessageRepository.save(
+					buildMensajeRechazo(mensajeRechazo)
+			);
+
+			LOGGER.info("SAVED REJECTION MESSAGE: {}", savedRejectionMessage.getId());
+		} catch (Exception exception) {
+			LOGGER.error("Se produjo un error inesperado al guardar el mensaje de Rechazo en el indice de ELK. ", exception);
+		}
 	}
 
 
@@ -114,6 +133,25 @@ public class ElasticsearchOperationsRepository implements IElasticsearchOperatio
 				mensajeConfirmacionResponse.getMensajeConfirmacion().getNotificacion().name(),
 				mensajeConfirmacionResponse.getMensajeConfirmacion().getTipoDeNotificacion().name(),
 				currentZoneDateTime
+		);
+	}
+
+	private MensajeRechazo buildMensajeRechazo(MensajeRechazoResponse mensajeRechazoResponse) {
+		LocalDateTime currentLocalDateTime = LocalDateTime.now(Clock.system(ZoneId.of(zoneId)));
+
+		return new MensajeRechazo(
+				generarIdSeguro(),
+				mensajeRechazoResponse.getIdConsumidor(),
+				mensajeRechazoResponse.getCorresponsal().name(),
+				mensajeRechazoResponse.getMensajeRechazo().getCliente(),
+				mensajeRechazoResponse.getMensajeRechazo().getMotivo(),
+				mensajeRechazoResponse.getMensajeRechazo().getPlataformaOrigen(),
+				mensajeRechazoResponse.getMensajeRechazo().getPlataformaDestino(),
+				mensajeRechazoResponse.getMensajeRechazo().getCorreoElectronico(),
+				mensajeRechazoResponse.getMensajeRechazo().getNumeroTelefono(),
+				mensajeRechazoResponse.getMensajeRechazo().getNotificacion().name(),
+				mensajeRechazoResponse.getMensajeRechazo().getTipoDeNotificacion().name(),
+				currentLocalDateTime
 		);
 	}
 

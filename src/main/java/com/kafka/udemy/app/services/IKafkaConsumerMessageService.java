@@ -12,12 +12,13 @@ public interface IKafkaConsumerMessageService {
 	 * @param message El mensaje obtenido.
 	 */
 	@SuppressWarnings("unused")
-	void obtenerMensaje(String message);
+	void obtenerMensajeRechazo(String message);
 
 	/**
-	 * Utilizado para obtener los mensajes de confirmación de la cola de mensajes.
+	 * Utilizado para obtener los mensajes de confirmación (por lotes) de la cola de mensajes.
 	 *
 	 * @param messages Los mensajes obtenidos.
+	 * @noinspection unused
 	 */
 	void obtenerMensajeConfirmacion(List<ConsumerRecord<String, String>> messages);
 
@@ -28,8 +29,8 @@ public interface IKafkaConsumerMessageService {
 	 * <br> - max.poll.records: Define el máximo número de registros que se traerán en una ejecución (a devolver por el método pool).
 	 *
 	 * @param messages Los mensajes obtenidos.
+	 * @noinspection unused
 	 */
-	@SuppressWarnings("unused")
-	void obtenerMensaje(List<ConsumerRecord<String, String>> messages);
+	void obtenerMensajeRechazo(List<ConsumerRecord<String, String>> messages);
 
 }

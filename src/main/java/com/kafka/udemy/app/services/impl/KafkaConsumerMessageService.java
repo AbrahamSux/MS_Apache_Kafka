@@ -1,6 +1,6 @@
 package com.kafka.udemy.app.services.impl;
 
-import com.kafka.udemy.app.repositories.IElasticsearchOperationsRepository;
+import com.kafka.udemy.app.repositories.IMessageRepository;
 import com.kafka.udemy.app.services.IKafkaConsumerMessageService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
@@ -18,20 +18,21 @@ public class KafkaConsumerMessageService implements IKafkaConsumerMessageService
 
 
 	@Autowired
-	IElasticsearchOperationsRepository elasticsearchOperationsService;
+	IMessageRepository messageRepository;
 
 
-	// CONSTANTES
-	private static final String MENSAJE_CONFIRMACION = "mensajes-confirmacion";
 
+	// MÉTODOS PRINCIPALES
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	//@KafkaListener(topics = {"dev-topic", "confirmacion-topic", "rechazo-topic"}, groupId = "consumer")
-	public void obtenerMensaje(String message) {
-		// Intentionally empty
+	//@KafkaListener(topics = {"dev-topic"}, groupId = "consumer")
+	public void obtenerMensajeRechazo(String message) {
+		LOGGER.info(">> obtenerMensaje( ... ) ");
+
+		LOGGER.info("Received Message: " + message);
 	}
 
 	/**
@@ -49,7 +50,7 @@ public class KafkaConsumerMessageService implements IKafkaConsumerMessageService
 		for (ConsumerRecord<String, String> message: messages) {
 			LOGGER.info("Confirmation message received => Offset= {} Partition= {} Key= {} Value= {}", message.offset(), message.partition(), message.key(), message.value());
 
-			elasticsearchOperationsService.guardarMensajeConfirmacion(message.value());
+			messageRepository.guardarMensajeConfirmacion(message.value());
 		}
 		LOGGER.info("Batch complete.");
 	}
@@ -60,24 +61,18 @@ public class KafkaConsumerMessageService implements IKafkaConsumerMessageService
 	@Override
 	@KafkaListener(
 			id ="autoStartup", autoStartup ="true",
-			topics = {"dev-topic", "rechazo-topic"},
+			topics = {"rechazo-topic"},
 			containerFactory = "kafkaListenerContainerFactory",
 			groupId = "consumer",
-			properties = {
-					"max.poll.interval.ms:400",
-					"max.poll.records:5"
-			}
+			properties = {"max.poll.interval.ms:400", "max.poll.records:5"}
 	)
-	public void obtenerMensaje(List<ConsumerRecord<String, String>> messages) {
-		LOGGER.info("Start reading messages");
+	public void obtenerMensajeRechazo(List<ConsumerRecord<String, String>> messages) {
+		LOGGER.info(">> obtenerMensajeRechazo( ... )");
 
 		for (ConsumerRecord<String, String> message: messages) {
-			LOGGER.info("Received Message => Offset= {} Partition= {} Key= {} Value= {}", message.offset(), message.partition(), message.key(), message.value());
+			LOGGER.info("Rejection message received => Offset= {} Partition= {} Key= {} Value= {}", message.offset(), message.partition(), message.key(), message.value());
 
-			if (MENSAJE_CONFIRMACION.equals(message.key())) {
-				//elasticsearchOperationsService.guardarMensajeConfirmacion(message.value());
-			}
-
+			messageRepository.guardarMensajeRechazo(message.value());
 		}
 		LOGGER.info("Batch complete.");
 	}
