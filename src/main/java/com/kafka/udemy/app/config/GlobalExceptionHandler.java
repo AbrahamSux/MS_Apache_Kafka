@@ -3,6 +3,7 @@ package com.kafka.udemy.app.config;
 import com.kafka.udemy.app.exceptions.BaseException;
 import com.kafka.udemy.app.exceptions.ConfirmacionException;
 import com.kafka.udemy.app.exceptions.ErrorInfo;
+import com.kafka.udemy.app.exceptions.RechazoException;
 import com.kafka.udemy.app.exceptions.enums.SeveridadError;
 import com.kafka.udemy.app.exceptions.enums.TipoError;
 import jakarta.servlet.http.HttpServletResponse;
@@ -66,7 +67,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	/**
 	 * Utilizado para manejar la excepciones empresariales.
 	 */
-	@ExceptionHandler({ConfirmacionException.class})
+	@ExceptionHandler({ConfirmacionException.class, RechazoException.class})
 	public ResponseEntity<Object> handleBusinessException(HttpServletResponse response, Exception exception) {
 		LOGGER.error(">> handleBusinessException( ... )");
 

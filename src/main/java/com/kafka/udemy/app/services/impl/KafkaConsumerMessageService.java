@@ -60,11 +60,9 @@ public class KafkaConsumerMessageService implements IKafkaConsumerMessageService
 	 */
 	@Override
 	@KafkaListener(
-			id ="autoStartup", autoStartup ="true",
 			topics = {"rechazo-topic"},
 			containerFactory = "kafkaListenerContainerFactory",
-			groupId = "consumer",
-			properties = {"max.poll.interval.ms:400", "max.poll.records:5"}
+			groupId = "consumer"
 	)
 	public void obtenerMensajeRechazo(List<ConsumerRecord<String, String>> messages) {
 		LOGGER.info(">> obtenerMensajeRechazo( ... )");
@@ -76,5 +74,4 @@ public class KafkaConsumerMessageService implements IKafkaConsumerMessageService
 		}
 		LOGGER.info("Batch complete.");
 	}
-
 }

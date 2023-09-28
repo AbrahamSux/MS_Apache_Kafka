@@ -7,6 +7,7 @@ import com.kafka.udemy.app.models.mensajeconfirmacion.MensajeConfirmacionRespons
 import com.kafka.udemy.app.models.mensajerechazo.MensajeRechazoRequest;
 import com.kafka.udemy.app.models.mensajerechazo.MensajeRechazoResponse;
 import com.kafka.udemy.app.services.IKafkaProducerMessageService;
+import com.kafka.udemy.app.services.IRejectionMessageService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
@@ -26,15 +27,18 @@ public class MessageController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MessageController.class);
 
 
+	private final IRejectionMessageService iRejectionMessageService;
 	private final IKafkaProducerMessageService iKafkaProducerMessageService;
 
 
 	// CONSTRUCTOR
 
 	/**
-	 * Inyección por constructor del bean {@link IKafkaProducerMessageService}.
+	 * Inyección por constructor.
 	 */
-	public MessageController(final IKafkaProducerMessageService iKafkaProducerMessageService) {
+	public MessageController(final IRejectionMessageService iRejectionMessageService,
+							 final IKafkaProducerMessageService iKafkaProducerMessageService) {
+		this.iRejectionMessageService = iRejectionMessageService;
 		this.iKafkaProducerMessageService = iKafkaProducerMessageService;
 	}
 
@@ -67,6 +71,27 @@ public class MessageController {
 
 		MensajeRechazoResponse response = iKafkaProducerMessageService.enviarMensajeRechazo(headers, mensajeRechazo);
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+	}
+
+	@GetMapping(path = "/rechazo/document",
+			produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE
+	)
+	public ResponseEntity<?> obtenerMensajeRechazoPorId(
+			@RequestParam(value = "idDocument") String idDocument) throws RechazoException {
+		LOGGER.info(">> obtenerMensajeRechazoPorId( {} )", idDocument);
+
+		return iRejectionMessageService.getMensajeRechazoPorId(idDocument);
+	}
+
+	@GetMapping(path = "/rechazo",
+			produces = MediaType.APPLICATION_JSON_VALUE
+	)
+	public ResponseEntity<?> obtenerMensajeRechazoPorOrigen(
+			@RequestParam(value = "origen") String origen,
+			@RequestParam(value = "tipoNotificacion", required = false) String tipoNotificacion) throws RechazoException {
+		LOGGER.info(">> obtenerMensajeRechazoPorOrigen( {}, {} )", origen, tipoNotificacion);
+
+		return iRejectionMessageService.getMensajeRechazoPorOrigenAndTipoNotificacion(origen, tipoNotificacion);
 	}
 
 }

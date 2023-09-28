@@ -29,10 +29,26 @@ public class RechazoException extends BaseException {
 	// PROPAGACIÓN DE EXCEPCIONES
 
 	public static final RechazoException ERR_ENVIO_MENSAJE_RECHAZO_KAFKA = new RechazoException(
-			"API-MESSAGES-002",
+			"API-MESSAGES-020",
 			"Error al momento de enviar el mensaje de rechazo a tr\u00e9ves de Kafka.",
 			TipoError.CONECTIVIDAD.getTipo(),
 			SeveridadError.SERVER_ERROR.getSeveridad(),
+			HttpStatus.INTERNAL_SERVER_ERROR
+	);
+
+	public static final RechazoException ERR_OBTENER_MENSAJE_RECHAZO_POR_ID_ELK = new RechazoException(
+			"API-MESSAGES-021",
+			"Error al momento de obtener el Mensaje de Rechazo por ID de ELK.",
+			TipoError.CONECTIVIDAD.getTipo(),
+			SeveridadError.CLIENT_ERROR.getSeveridad(),
+			HttpStatus.INTERNAL_SERVER_ERROR
+	);
+
+	public static final RechazoException ERR_OBTENER_MENSAJE_RECHAZO_POR_ORIGEN_ELK = new RechazoException(
+			"API-MESSAGES-022",
+			"Error al momento de obtener el Mensaje de Rechazo por Origen y Tipo de Notificaci\u00f3n de ELK.",
+			TipoError.CONECTIVIDAD.getTipo(),
+			SeveridadError.CLIENT_ERROR.getSeveridad(),
 			HttpStatus.INTERNAL_SERVER_ERROR
 	);
 
